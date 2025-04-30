@@ -6,13 +6,12 @@ export interface IRequest {
   status: "pending" | "accepted";
 }
 
-export interface IUser extends Document {
+interface IUser extends Document {
   username: string;
   email: string;
   password: string;
   requests: IRequest[];
   chats: Types.ObjectId[];
-  isOnline: boolean;
   lastSeen?: Date;
   createdAt: Date;
   twoFactorEnabled: boolean;
@@ -34,7 +33,6 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true },
   requests: [requestSchema],
   chats: [{ type: Schema.Types.ObjectId, ref: "ChatRoom" }],
-  isOnline: { type: Boolean, default: false },
   lastSeen: { type: Date },
   createdAt: { type: Date, default: Date.now },
   twoFactorEnabled: { type: Boolean, default: false },
@@ -54,4 +52,4 @@ userSchema.methods.comparePassword = async function (password: string) {
   return bcrypt.compare(password, this.password);
 };
 
-export default mongoose.model<IUser>("User", userSchema);
+export default mongoose.model<IUser>("user", userSchema);

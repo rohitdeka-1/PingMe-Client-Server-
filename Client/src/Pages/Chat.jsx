@@ -33,7 +33,7 @@ const Chat = () => {
   }
 
   if (error) {
-    return <p className="text-red-500 text-center">{error}</p>;
+    return <p className="min-h-screen flex justify-center bg-black  items-center text-red-500 text-center">{error}</p>;
   }
 
   return (

@@ -33,6 +33,13 @@ const Login = () => {
           Register
         </Link>{" "}
       </p>
+
+      <p className="mt-2 text-slate-500 px-3 py-1">
+        Forgot Password?{" "}
+        <Link className="text-green-600" to="/reset">
+          Reset
+        </Link>{" "}
+      </p>
     </div>
   );
 };
