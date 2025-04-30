@@ -1,12 +1,9 @@
 import  express, { Response,Request,NextFunction }  from "express";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {requestInterface} from "../../middlewares/auth.middleware"
 import User from "../../models/user.model"
 import dotenv from "dotenv";
 dotenv.config();
-console.log( process.env.ACCESS_TOKEN_SECRET)
-
 
 export const handleUserLogin = async(req:Request,res:Response,next:NextFunction):Promise<any> => {
     const {identity,password} = req.body;

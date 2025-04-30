@@ -2,3 +2,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.basic-circle {
+    width: 25px;
+    height: 25px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;  
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    background-color: transparent;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

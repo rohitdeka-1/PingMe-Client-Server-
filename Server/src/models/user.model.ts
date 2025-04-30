@@ -48,8 +48,8 @@ userSchema.pre("save", async function (next) {
 });
 
 // Compare password
-userSchema.methods.comparePassword = async function (password: string) {
-  return bcrypt.compare(password, this.password);
-};
+// userSchema.methods.comparePassword = async function (password: string) {
+//   return bcrypt.compare(password, this.password);
+// };
 
 export default mongoose.model<IUser>("user", userSchema);

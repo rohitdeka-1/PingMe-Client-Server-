@@ -9,6 +9,12 @@ dotenv.config();
 export const handleUserRegister = async(req:Request, res:Response, next:NextFunction):Promise<any> => {
     const {fullname,email,password,username} = req.body;
     console.log(fullname,email,username);
+    if(!fullname && !email && !username ){
+        return res.status(401).json({
+            success : false,
+            message : "All fields are required"
+        })
+    }
     const existedUser = await User.findOne({$or:[{email},{password}]});
         if(existedUser){
             return res.status(409).json({
