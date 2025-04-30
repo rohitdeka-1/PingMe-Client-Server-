@@ -1,10 +1,7 @@
 import express from "express"
-import {handleUserRegister} from "../controllers/Auth/register.controller"
-import { inputValidationError, loginInputValidator, registrationInputValidator } from "../middlewares/authValidator.middleware";
-import { handleUserLogin } from "../controllers/Auth/login.controller";
-import { handleUserLogout } from "../controllers/Auth/logout.controller";
-import { handleSendResetMail } from "../controllers/Auth/reset.controller";
-import { resetPassPagevalidation } from "../controllers/Auth/resetPassPagevalidation";
+import { inputValidationError, loginInputValidator, registrationInputValidator } from "../middlewares/validation/authValidator.middleware";
+import { handleSendResetMail, handleUserLogin, handleUserLogout, handleUserRegister } from "../controllers/auth.controller";
+import { resetPassPagevalidation } from "../middlewares/resetValidate";
 const authRoute = express.Router();
 
 authRoute.post("/register",registrationInputValidator,inputValidationError,handleUserRegister)

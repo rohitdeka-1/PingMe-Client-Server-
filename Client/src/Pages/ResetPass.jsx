@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import Form from "../Components/Auth/Form";
 import { Link, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const ResetPass = () => {
   const { token } = useParams();
-  console.log(token) // yaad dila dena
   const [validToken, setValidToken] = useState(null);
   const backendURI = import.meta.env.VITE_BACKEND_URI;
   useEffect(() => {
     const validateToken = async () => {
       try {
         const response = await axios.get(
-          `${backendURI}/resetpassword/${token}`
+          `${backendURI}/api/v1/auth/resetpassword/${token}`
         );
         if (response.data.success) {
           setValidToken(response.data.success);
@@ -20,6 +20,7 @@ const ResetPass = () => {
       } catch (err) {
         setValidToken(false);
         toast.error("Invalid or expired reset link.");
+        console.error("Err : ",err)
       }
     };
     validateToken();
@@ -48,7 +49,7 @@ const ResetPass = () => {
 
           <input
             type="password"
-            name="password"
+            name="password1"
             placeholder="Confirm Password"
             className="bg-transparent p-3 w-full text-white rounded-xl outline-blue-400"
             required
