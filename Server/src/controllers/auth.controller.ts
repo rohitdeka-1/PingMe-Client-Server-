@@ -161,7 +161,6 @@ export const handleSendResetMail = async (
   const { email } = req.body;
   console.log(email);
 
-
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -178,10 +177,9 @@ export const handleSendResetMail = async (
       },
       process.env.RESET_TOKEN_SECRET!,
       {
-        expiresIn: "10m",
+        expiresIn: "1h",
       }
     );
-
 
     const resetLink = `http://localhost:5173/resetpassword/${encodeURIComponent(
       TOKEN
@@ -234,27 +232,50 @@ export const handleSendResetMail = async (
   }
 };
 
-const changePassword = async(req: Request, res: Response, next: NextFunction):Promise<void> => {
-  const { password, password2 } = req.body;
-  console.log(password, password2);
+export const changePassword = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  const { password1, password2 } = req.body
+  const { token } = req.params
+  console.log("Change password request received:", { token, password1: "***", password2: "***" })
 
   try {
-    if (password !== password2) {
-      res.status(401).json({
+    if (password1 !== password2) {
+      return res.status(401).json({
         success: false,
-        message: "Both password should be same",
-      });
+        message: "Both passwords should be the same",
+      })
     }
 
-    
-
-    const user = await User.()
-
-  } catch (err) {
-    console.error("Err : ",err)
-    res.status(500).json({
+    const decoded = jwt.verify(token, process.env.RESET_TOKEN_SECRET!)
+    if (!decoded) {
+      return res.status(401).json({
         success: false,
-        message: "Internal server error"
+        message: "UnAuthorized",
+      })
+    }
+    const userId = (decoded as { userId: string }).userId
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      })
+    }
+
+    user.password = password1
+    await user.save()
+
+    // Send success response
+    console.log("Password updated successfully for user:", userId)
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    })
+  } catch (err) {
+    console.error("Error in changePassword:", err)
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     })
   }
-};
+}
