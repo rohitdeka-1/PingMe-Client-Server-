@@ -15,12 +15,14 @@ const Register = lazy(()=> import("./Pages/Register"))
 const Requests = lazy(()=> import("./Components/Profile/Requests"))
 const Reset = lazy(()=> import("./Pages/Reset"))
 const ResetPass = lazy(()=> import ("./Pages/ResetPass"))
+const Landing = lazy(()=>import("./Pages/Landing"))
 
 const App = () => {
   return (
     <Router>
         <Routes>
-            <Route path="/" element={<Home/>}/>
+            <Route path="/" element={<Landing/>} />
+            <Route path="/home" element={<Home/>}/>
             <Route path="/profile" element={<Profile/>}/>
             <Route path="/chat/:userId" element={<Chat/>}/>
             <Route path="/login" element={<Login/>} />

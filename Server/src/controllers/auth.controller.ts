@@ -14,11 +14,18 @@ export const handleUserRegister = async (
   const { fullname, email, password, username } = req.body;
   console.log(fullname, email, username);
 
-  const existedUser = await User.findOne({ $or: [{ email }, { username }] });
-  if (existedUser) {
+  const existedEmail = await User.findOne({ email });
+  if (existedEmail) {
     return res.status(409).json({
       success: false,
-      message: "User Already Exists",
+      message: "Email Already Registered",
+    });
+  }
+  const existedUsername = await User.findOne({ username });
+  if (existedUsername) {
+    return res.status(409).json({
+      success: false,
+      message: "Username Already Exists",
     });
   }
   try {
@@ -30,7 +37,7 @@ export const handleUserRegister = async (
     });
 
     if (!creationUser) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Failed User Creation",
       });
@@ -64,12 +71,11 @@ export const handleUserRegister = async (
     res.cookie("ACCESS_TOKEN", TOKEN, {
       httpOnly: true,
     });
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "User Created Successfully",
     });
 
-    return;
   } catch (error) {
     console.error("Error during Registration : ", error);
     return res.status(500).json({
@@ -83,14 +89,14 @@ export const handleUserLogin = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<any> => {
   const { identity, password } = req.body;
   try {
     const user = await User.findOne({
       $or: [{ username: identity }, { email: identity }],
     });
     if (!user) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "User not in database",
       });
@@ -100,7 +106,7 @@ export const handleUserLogin = async (
         user?.password as string
       );
       if (!isPasswordValid) {
-        res.status(400).json({
+        return res.status(400).json({
           success: false,
           message: "Invalid Credentials",
         });
@@ -121,14 +127,14 @@ export const handleUserLogin = async (
         httpOnly: true,
       });
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         message: "Access Granted",
       });
     }
   } catch (err) {
     console.error("Error while Login : ", err);
-    res.status(500).json({
+    return res.status(500).json({ 
       success: false,
       message: "Internal server error",
     });

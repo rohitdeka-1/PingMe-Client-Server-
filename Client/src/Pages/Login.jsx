@@ -1,8 +1,48 @@
-import React from "react";
+import React,{useState} from "react";
 import Form from "../Components/Auth/Form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance";
+import toast from "react-hot-toast";
 
 const Login = () => {
+
+  const [identity, setIdentity] = useState("");
+  const [password, setPassword] = useState("")
+
+  let navigate = useNavigate();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "identity") {
+      setIdentity(value);
+    } else if (name === "password") {
+      setPassword(value);
+    }
+  };
+
+  const handleSubmit = async(e) =>{
+    e.preventDefault();
+    try{
+      const res = await axiosInstance.post("/auth/login",{identity,password});
+      console.log(res);
+      if(res.data.success){
+        toast.success("Access Granted")
+        setTimeout(()=>{
+          navigate("/home")
+        },1500)
+      }
+      else {
+        toast.error(res.data.message || "Login failed.");
+      }
+    }
+    catch(err){
+      const errorMessage = err?.response?.data?.message || "An unexpected error occurred.";
+      toast.error(errorMessage);
+      console.error("Error Login: ",err)
+    }
+
+  }
+
   return (
     <div className="min-h-screen bg-[#161717] p-6 flex flex-col justify-center">
       <div>
@@ -10,17 +50,21 @@ const Login = () => {
           PingMe
         </h1>
       </div>
-      <Form btnLabel="Login">
+      <Form btnLabel="Login" onClick={handleSubmit}>
         <input
           type="text"
           name="identity"
+          value={identity}
+          onChange={handleInputChange}
           placeholder="Email/Username"
           className="bg-transparent p-3 w-full text-white rounded-xl outline-blue-400 "
           required
-        />
+          />
         <input
           type="password"
           name="password"
+          value={password}
+          onChange={handleInputChange}
           placeholder="Password"
           className="bg-transparent p-3 w-full text-white rounded-xl outline-blue-400"
           required

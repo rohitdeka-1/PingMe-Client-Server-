@@ -43,7 +43,7 @@ export const registrationInputValidator = checkSchema({
     },
     isLength: {
       options: {
-        min: 4,
+        min: 6,
       },
       errorMessage: "Password too short",
     },
