@@ -72,7 +72,7 @@ export const handleUserRegister = async (
       httpOnly: true,
       secure: true,
       sameSite: "none",
-
+      maxAge: 60 * 60 * 1000,
     });
 
 
@@ -130,6 +130,9 @@ export const handleUserLogin = async (
 
       res.cookie("ACCESS_TOKEN", TOKEN, {
         httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 60 * 60 * 1000,
       });
 
       return res.status(200).json({
