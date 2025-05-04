@@ -6,7 +6,7 @@ export interface IRequest {
   status: "pending" | "accepted";
 }
 
-interface IUser extends Document {
+export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
@@ -17,6 +17,7 @@ interface IUser extends Document {
   createdAt: Date;
   profilePic: string;
   fullname: string;
+  userImages: string[];
 
   comparePassword: (password: string) => Promise<boolean>;
 }
@@ -41,6 +42,7 @@ const userSchema = new Schema<IUser>(
     lastSeen: { type: Date },
     profilePic: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
+    userImages: [{type:String}],
   },
   {
     timestamps: true,

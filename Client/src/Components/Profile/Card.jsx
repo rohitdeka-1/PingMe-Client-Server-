@@ -2,11 +2,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosInstance";
+import Skeleton from "../loader/Loading";
 
 const Card = () => {
   const [selectedImage, setSelectedImage] = useState(null); 
   const [uploading, setUploading] = useState(false);
-  const [Fullname, setFullname] = useState("user")
+  const [Fullname, setFullname] = useState("user");
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -64,11 +65,13 @@ const Card = () => {
     <div className="relative w-full">
       <form>
         <label htmlFor="file-upload" className="w-full cursor-pointer">
+          
           <img
             className="border border-slate-600 h-28 w-28 rounded-full bg-black object-cover mx-auto"
             src={selectedImage || "../../assets/react.svg"} 
             alt="Avatar"
           />
+          {uploading && (<Skeleton/>)}
           <p
             className="absolute text-white border border-slate-600 rounded-full px-1 bg-black"
             style={{

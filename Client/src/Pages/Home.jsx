@@ -6,6 +6,7 @@ import Heading from "../Components/Common/Heading";
 import SearchBar from "../Components/Common/SearchBar";
 import Request from "../Components/Chat/Request";
 import SearchPage from "../Components/Common/searchPage";
+import Skeleton from "../Components/loader/Loading";
 
 const Home = () => {
   const [chats, setChats] = useState([]);
@@ -38,6 +39,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-[#161717] p-6">
+         {loading && (
+        <Skeleton/>
+      )}
       <Heading />
       {/* <SearchBar /> */}
       <SearchPage onSearch={(term) => setSearchTerm(term)} />

@@ -133,16 +133,98 @@ export const getUserProfile = async (
   res: Response
 ): Promise<any> => {
   try {
-    const userId = req.user?._id;
-    const user = await User.findById(userId);
+    const { username } = req.params;
 
+    let query:any = { _id: req.user?._id };   
+
+    if(username){
+      query={
+        username 
+      }
+    }
+   
+    const user = await User.findOne( query );
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
-    res.status(200).json({ user });
+    return res.status(200).json({
+      success: true,
+      user: {
+        fullname: user.fullname,
+        about: user.about,
+        profilePic: user.profilePic,
+        userImages: user.userImages,
+        username: user.username,
+      },
+    });
   } catch (error) {
     console.error("Error fetching user profile:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+export const uploadImage = async (
+  req: requestInterface,
+  res: Response
+): Promise<any> => {
+  try {
+    // Validate if a file is provided
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
+
+    // Upload the file to Cloudinary
+    const uploadResult = await uploadOnCloudinary(req.file.path);
+    if (!uploadResult) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to upload image to Cloudinary",
+      });
+    }
+
+    // Validate user authentication
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized access",
+      });
+    }
+
+    // Fetch the user from the database
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Initialize userImages array if not already present
+    user.userImages = user.userImages || [];
+    user.userImages.push(uploadResult.secure_url);
+
+    // Save the updated user document
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Image uploaded successfully",
+      imageUrl: uploadResult.secure_url,
+    });
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

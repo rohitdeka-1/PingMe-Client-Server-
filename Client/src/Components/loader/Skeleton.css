@@ -1,0 +1,79 @@
+.rhd-loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: auto;  
+    height: auto;  
+    backdrop-filter: blur(4px);  
+}
+
+/* Orbit container */
+.orbit {
+    width: 60px;  /* Orbit radius */
+    height: 60px;
+    position: relative;
+    animation: spin 0.5s linear infinite; /* Continuous rotation */
+}
+
+/* Dots */
+.dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Initial glow */
+    animation: glow 1.5s infinite alternate; /* Glowing effect */
+}
+
+/* Dot positions */
+.r-dot {
+    background: #4285F4; /* Blue */
+    top: 0%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 0s; /* Staggered glow */
+}
+
+.h-dot {
+    background: #FFFFFF; /* White */
+    top: 50%;
+    left: 100%;
+    transform: translate(-50%, -50%);
+    animation-delay: 0.2s; /* Staggered glow */
+}
+
+.d-dot {
+    background: #F4B400; /* Yellow */
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 0.4s;  
+}
+
+/* Keyframes for rotation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Keyframes for glowing effect */
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+        transform: scale(1.2); /* Slightly enlarge the dot */
+    }
+}

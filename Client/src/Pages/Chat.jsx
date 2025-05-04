@@ -4,6 +4,7 @@ import Heading from "../Components/Chatter/Heading";
 import Background from "../../src/assets/background.webp";
 import TextArea from "../Components/Chatter/TextArea";
 import axios from "axios";
+import Skeleton from "../Components/loader/Loading";
 
 const Chat = () => {
   const { userId } = useParams(); // Get userId from the URL
@@ -29,7 +30,8 @@ const Chat = () => {
   }, [userId]);
 
   if (loading) {
-    return <p className="text-white text-center">Loading chat...</p>;
+    
+    <Skeleton/>;
   }
 
   if (error) {
@@ -38,6 +40,7 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-[#161717] text-white p-4 relative overflow-hidden">
+      
       <div className="absolute inset-0">
         <img
           src={Background}
