@@ -7,7 +7,12 @@ dotenv.config();
 
 export interface requestInterface extends Request {
     userId?: string;
-    user: any;
+    user?: {
+        _id: string;
+        profilePic?: string;
+        user:any;
+      };
+    file?: Express.Multer.File;
 } 
 
 export const verifyToken = async(req:requestInterface,res:Response,next:NextFunction):Promise<void> => {
@@ -30,14 +35,20 @@ export const verifyToken = async(req:requestInterface,res:Response,next:NextFunc
             })
         }
         
-        const user = await User.findById(decoded.userId);
+        const user = await User.findById(decoded.userId) as { _id: string; profilePic?: string; [key: string]: any };
         if(!user){
             res.status(401).json({
                 success: false,
                 message : "User not found" 
             })
         }
-        req.user = user;
+        if (user) {
+            req.user = {
+                _id: user._id,
+                profilePic: user.profilePic,
+                user: user
+            };
+        }
         next();
     }
     catch(error){

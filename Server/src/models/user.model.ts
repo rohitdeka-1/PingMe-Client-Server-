@@ -13,10 +13,11 @@ interface IUser extends Document {
   requests: IRequest[];
   chats: Types.ObjectId[];
   lastSeen?: Date;
+  about?: string;
   createdAt: Date;
-  twoFactorEnabled: boolean;
+  profilePic: string;
   fullname: string;
-  twoFactorSecret?: string;
+
   comparePassword: (password: string) => Promise<boolean>;
 }
 
@@ -28,18 +29,23 @@ const requestSchema = new Schema<IRequest>(
   { _id: false }
 );
 
-const userSchema = new Schema<IUser>({
-  username: { type: String, required: true, unique: true, trim: true },
-  fullname: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true },
-  requests: [requestSchema],
-  chats: [{ type: Schema.Types.ObjectId, ref: "ChatRoom" }],
-  lastSeen: { type: Date },
-  createdAt: { type: Date, default: Date.now },
-  twoFactorEnabled: { type: Boolean, default: false },
-  twoFactorSecret: { type: String },
-});
+const userSchema = new Schema<IUser>(
+  {
+    username: { type: String, required: true, unique: true, trim: true },
+    fullname: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    requests: [requestSchema],
+    chats: [{ type: Schema.Types.ObjectId, ref: "ChatRoom" }],
+    about: { type: String, default: "" },
+    lastSeen: { type: Date },
+    profilePic: { type: String, default: "" },
+    createdAt: { type: Date, default: Date.now },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
