@@ -12,11 +12,12 @@ export const handleSearch = async (req: Request, res: Response):Promise<any> => 
 
     // Use regex to match the sequence of characters entered (sequential search)
     const regex = new RegExp(`^${q}`, "i"); // ^ ensures it matches the beginning of the username
-
+ 
     const users = await User.find({
-      username: { $regex: regex },
+      $or:[{username:regex},{email:regex}]
+      
     }).limit(limit);
-
+    
     res.json({ results: users });
   } catch (err) {
     console.error("Search error:", err);
