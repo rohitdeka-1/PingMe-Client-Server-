@@ -5,6 +5,7 @@ import MessageCard from "../Components/Chat/MessageCard";
 import Heading from "../Components/Common/Heading";
 import SearchBar from "../Components/Common/SearchBar";
 import Request from "../Components/Chat/Request";
+import SearchPage from "../Components/Common/searchPage";
 
 const Home = () => {
   const [chats, setChats] = useState([]);
@@ -33,10 +34,13 @@ const Home = () => {
     chat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+
+
   return (
     <div className="min-h-screen bg-[#161717] p-6">
       <Heading />
-      <SearchBar onSearch={(term) => setSearchTerm(term)} />
+      {/* <SearchBar /> */}
+      <SearchPage onSearch={(term) => setSearchTerm(term)} />
       <ChatFilters />
       <Request/>
       {loading ? (

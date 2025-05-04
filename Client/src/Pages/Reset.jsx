@@ -22,10 +22,14 @@ const Reset = () => {
         toast.success("Check your email for the password reset link.");
         setIsEmailSent(true);
       }
+      else{
+        toast.success(response.data.message);
+      }
     } catch (err) {
       console.log("Error in handleResetEmail : ", err);
-      toast.error("Failed to send reset email. Please try again.");
-    } finally{
+      toast.error(err.response?.data?.message )
+  
+    } finally{  
       setLoading(false);
     }
   };

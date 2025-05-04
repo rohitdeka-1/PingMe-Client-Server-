@@ -43,6 +43,4 @@ export const verifyToken = async(req:requestInterface,res:Response,next:NextFunc
     catch(error){
         console.error("Error in token verification : ",error);
     }
-
-    
 }

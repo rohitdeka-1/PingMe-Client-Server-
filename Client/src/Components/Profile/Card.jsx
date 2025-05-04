@@ -1,8 +1,7 @@
 import Dummy1 from "../../assets/react.svg";
-import Dummy2 from "../../assets/ran4.jpeg";
+// import Dummy2 from "../../assets/ran4.jpeg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
-import Name from "./Name";
 
 
 const Card = () => {

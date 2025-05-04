@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { lazy } from "react";
+
 // import ResetPass from "./Pages/ResetPass";
 // import Requests from "./Components/Profile/Requests"
 // import Home from "./Pages/Home"
@@ -16,6 +17,7 @@ const Requests = lazy(()=> import("./Components/Profile/Requests"))
 const Reset = lazy(()=> import("./Pages/Reset"))
 const ResetPass = lazy(()=> import ("./Pages/ResetPass"))
 const Landing = lazy(()=>import("./Pages/Landing"))
+const Public = lazy(()=>import("./Pages/Public"))
 
 const App = () => {
   return (
@@ -29,6 +31,7 @@ const App = () => {
             <Route path="/register" element={<Register/>} />
             <Route path="/requests" element={<Requests/>} />
             <Route path="/reset" element={<Reset/>} />
+            <Route path="/profile/:username" element={<Public/>} />
             <Route path="/resetpassword/:token" element={<ResetPass/>}/>
         </Routes>
     </Router>

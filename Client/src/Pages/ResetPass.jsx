@@ -5,7 +5,6 @@ import Form from "../Components/Auth/Form"
 import { useParams, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 import axios from "axios"
-import axiosInstance from "../utils/axiosInstance";
 
 
 const ResetPass = () => {

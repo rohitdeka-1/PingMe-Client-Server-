@@ -15,6 +15,7 @@ interface IUser extends Document {
   lastSeen?: Date;
   createdAt: Date;
   twoFactorEnabled: boolean;
+  fullname: string;
   twoFactorSecret?: string;
   comparePassword: (password: string) => Promise<boolean>;
 }
@@ -29,6 +30,7 @@ const requestSchema = new Schema<IRequest>(
 
 const userSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true, trim: true },
+  fullname: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   requests: [requestSchema],
