@@ -5,15 +5,17 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-[#161717] p-6 text-white flex flex-col justify-center items-center gap-2">
       <div>
-        <img className="h-48 w-48" src="/pingme.png" />
+        <img className="h-48 w-48" src="/src/assets/pingme.png" />
       </div>
       <div className="flex flex-col gap-3 w-full items-center">
-        <div className="p-2 text-xl font-bold active:bg-green-700 rounded-2xl w-44 flex justify-center items-center bg-green-600">
-          <button> <Link to={`/login`}>Login</Link> </button>
+      <Link to={`/login`}><div className="p-2 text-xl font-bold active:bg-green-700 rounded-2xl w-44 flex justify-center items-center bg-green-600">
+       <button> Login </button>
         </div>
-        <div className="p-2 text-xl font-bold  active:bg-green-700 rounded-2xl w-44 flex justify-center items-center bg-green-600">
-          <button> <Link to={`/register`}>  Register</Link></button>
+        </Link>
+        <Link to={`/register`}><div className="p-2 text-xl font-bold active:bg-green-700 rounded-2xl w-44 flex justify-center items-center bg-green-600">
+       <button> Register </button>
         </div>
+        </Link>
       </div>
     </div>
   );

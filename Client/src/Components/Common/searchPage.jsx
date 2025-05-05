@@ -68,9 +68,9 @@ const SearchPage = () => {
             results.map((item) => (
               <li
                 key={item._id}
-                className="py-3 px-2 text-white hover:bg-[#141414] rounded-xl"
+                className="py-3 px-2 text-white hover:bg-[#141414] font-bold rounded-xl"
               >
-                <Link to={`/profile/${item.username}`} >{item.fullname}</Link>
+                <Link key={item._id} to={`/profile/${item.username}`} >{item.fullname}</Link>
               </li>
             ))
           ) : (
