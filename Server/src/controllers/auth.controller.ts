@@ -79,6 +79,7 @@ export const handleUserRegister = async (
     return res.status(200).json({
       success: true,
       message: "User Created Successfully",
+      accessToken: TOKEN,
     });
 
   } catch (error) {
