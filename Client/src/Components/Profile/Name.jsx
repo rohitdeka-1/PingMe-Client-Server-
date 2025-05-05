@@ -11,11 +11,11 @@ const InputField = ({ icon, placeholder, value, onChange, isTextArea = false, ma
 
   return (
     <div className={`flex flex-col gap-1 ${isTextArea ? "" : "items-center"} gap-2`}>
-      <div className="flex w-full items-center gap-2">
+      <div className="flex w-full items-center">
         <FontAwesomeIcon className="text-xl" icon={icon} style={{ color: "#ffffff" }} />
         {isTextArea ? (
           <input
-            className="bg-[#00000000] outline-none px-2 py-1 w-full"
+            className="bg-[#00000000] outline-none px-2  w-full"
             placeholder={placeholder}
             maxLength={maxLength}
             value={value}

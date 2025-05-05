@@ -1,3 +1,4 @@
+import GoBack from "../Components/Common/GoBack";
 import Skeleton from "../Components/loader/Loading";
 import Card from "../Components/Profile/Card";
 import Heading from "../Components/Profile/Heading";
@@ -140,6 +141,7 @@ const Profile = () => {
             })}
           </div>
         </div>
+        <GoBack topmargin={0}/>
       </div>
     </div>
   );

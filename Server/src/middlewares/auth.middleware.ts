@@ -41,7 +41,7 @@ export const verifyToken = async (req: requestInterface, res: Response, next: Ne
         next();
     } catch (error) {
         console.error("Error in token verification:", error);
-        res.status(500).json({
+        res.status(401).json({
             success: false,
             message: "Internal server error",
         });

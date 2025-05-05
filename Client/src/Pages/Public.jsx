@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Skeleton from "../Components/loader/Loading";
+import GoBack from "../Components/Common/GoBack";
 
 const Public = () => {
   const { username } = useParams();
@@ -69,10 +70,10 @@ const Public = () => {
       </div>
 
       <div className="flex  justify-center gap-6 p-4">
-        <button className="bg-[#699bba] p-3 hover:bg-[#4e748b] transition ease-in-out duration-300 w-full rounded-2xl">
+        <button className="bg-[#282e32] p-3 hover:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl">
           Message
         </button>
-        <button className="bg-[#699bba] p-3 hover:bg-[#4e748b] transition ease-in-out duration-300 w-full rounded-2xl">
+        <button className="bg-[#282e32] p-3 hover:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl">
           Request
         </button>
       </div>
@@ -90,6 +91,7 @@ const Public = () => {
             ))}
         </div>
       </div>
+      <GoBack topmargin={4}/>
     </div>
   );
 };
