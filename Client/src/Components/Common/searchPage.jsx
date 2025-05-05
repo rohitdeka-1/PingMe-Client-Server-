@@ -61,14 +61,14 @@ const SearchPage = () => {
       <SearchBar onSearch={handleSearch} onClick={handleClick} />
       {searchPage && (
         <ul
-          className="p-2 absolute bg-[#282828] left-5 right-5 rounded-2xl"
+          className="p-3 absolute bg-[#282828] left-5 right-5 rounded-2xl"
           ref={searchRef}
         >
           {results.length > 0 ? (
             results.map((item) => (
               <li
                 key={item._id}
-                className="p-2 text-white hover:bg-[#141414] rounded-xl"
+                className="py-3 px-2 text-white hover:bg-[#141414] rounded-xl"
               >
                 <Link to={`/profile/${item.username}`} >{item.fullname}</Link>
               </li>

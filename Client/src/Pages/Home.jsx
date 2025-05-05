@@ -7,18 +7,21 @@ import SearchBar from "../Components/Common/SearchBar";
 import Request from "../Components/Chat/Request";
 import SearchPage from "../Components/Common/searchPage";
 import Skeleton from "../Components/loader/Loading";
+// import axiosInstance from "../utils/axiosInstance";
 
 const Home = () => {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+ 
 
   useEffect(() => {
     const fetchChats = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("https://your-api-endpoint.com/api/chats"); // Replace with your API endpoint
+       
+        const response = await axios.get("https://your-api-endpoint.com/api/chats");  
         setChats(response.data);
         setLoading(false);
       } catch (err) {
@@ -42,8 +45,8 @@ const Home = () => {
          {loading && (
         <Skeleton/>
       )}
-      <Heading />
-      {/* <SearchBar /> */}
+      <Heading   />
+     
       <SearchPage onSearch={(term) => setSearchTerm(term)} />
       <ChatFilters />
       <Request/>

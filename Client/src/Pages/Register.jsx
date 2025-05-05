@@ -13,6 +13,7 @@ const Register = () => {
   const [fullname, setFullname] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [loading, setloading] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -32,6 +33,7 @@ const Register = () => {
   const handleSubmit = async(e) =>{
     e.preventDefault();
     try{
+      setloading(true)
       const res = await axiosInstance.post("/auth/register",{email,password,fullname,username});
       if(res.data.success){
         toast.success(res.data.message);
@@ -47,6 +49,8 @@ const Register = () => {
       const errorMessage = err?.response?.data?.message
       toast.error(errorMessage)
       console.log("Error Registration: ",err)
+    }finally{
+      setloading(false)
     }
   }
   
@@ -56,7 +60,7 @@ const Register = () => {
         PingMe
       </h1>
       <div>
-        <Form btnLabel="Register" onClick={handleSubmit}>
+        <Form btnLabel="Register" loading={loading} onClick={handleSubmit}>
           <input
             type="text"
             name="fullname"

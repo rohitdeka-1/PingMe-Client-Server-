@@ -7,16 +7,16 @@ import axios from "axios";
 import Skeleton from "../Components/loader/Loading";
 
 const Chat = () => {
-  const { userId } = useParams(); // Get userId from the URL
-  const [chatData, setChatData] = useState(null); // State to store chat data
-  const [loading, setLoading] = useState(true); // State to manage loading
-  const [error, setError] = useState(null); // State to handle errors
+  const { userId } = useParams();  
+  const [chatData, setChatData] = useState(null);  
+  const [loading, setLoading] = useState(true);  
+  const [error, setError] = useState(null);  
 
   useEffect(() => {
     const fetchChatData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://your-api-endpoint.com/api/chats/${userId}`); // Replace with your API endpoint
+        const response = await axios.get(`https://your-api-endpoint.com/api/chats/${userId}`);  
         setChatData(response.data);
         setLoading(false);
       } catch (err) {

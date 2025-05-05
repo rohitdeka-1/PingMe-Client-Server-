@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Avatar from "../Chat/Avatar";
 
 const Heading = () => {
   return (
@@ -9,11 +10,7 @@ const Heading = () => {
       </div>
       <button>
         <Link to={"/profile"}>
-        <img
-          src="./src/assets/react.svg"
-          className="border border-slate-600 bg-slate-700 p-1 rounded-full"
-          style={{ objectFit: "contain" }}
-        />
+        <Avatar  />
         </Link>
       </button>
     </div>

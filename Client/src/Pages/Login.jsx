@@ -8,7 +8,7 @@ const Login = () => {
 
   const [identity, setIdentity] = useState("");
   const [password, setPassword] = useState("")
-
+  const [loading, setloading] = useState(false)
   let navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -23,6 +23,7 @@ const Login = () => {
   const handleSubmit = async(e) =>{
     e.preventDefault();
     try{
+      setloading(true)
       const res = await axiosInstance.post("/auth/login",{identity,password});
       if(res.data.success){
         localStorage.setItem("ACCESS_TOKEN", res.data.token); 
@@ -40,6 +41,9 @@ const Login = () => {
       toast.error(errorMessage);
       console.error("Error Login: ",err)
     }
+    finally{
+      setloading(false)
+    }
 
   }
 
@@ -50,7 +54,7 @@ const Login = () => {
           PingMe
         </h1>
       </div>
-      <Form btnLabel="Login" onClick={handleSubmit}>
+      <Form btnLabel="Login" loading={loading} onClick={handleSubmit}>
         <input
           type="text"
           name="identity"
