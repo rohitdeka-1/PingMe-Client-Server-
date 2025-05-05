@@ -17,14 +17,14 @@ const Profile = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const token = localStorage.getItem("access_token");
-        console.log(token)
+        // const token = localStorage.getItem("access_token");
+        // console.log(token)
         const res = await axiosInstance.get("/user/profile",{
           method: "GET",
     
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
         });
         setFullname(res.data.user.fullname);
         setAbout(res.data.user.about);
