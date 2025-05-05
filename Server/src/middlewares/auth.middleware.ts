@@ -8,32 +8,44 @@ dotenv.config();
 export interface requestInterface extends Request {
     user?: IUser;
 }
-export const verifyToken = async(req:requestInterface,res:Response,next:NextFunction):Promise<any> => {
-    const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET
-    const token = req.cookies.accessToken;
-    if(!token) return res.status(401).json({"success":false,"message" : "Access Denied"});
-    try{
-        const decoded:{userId:string} = jwt.verify(token,`${JWT_SECRET}` ) as {userId:string};
-        const user = await User.findOne({_id:decoded.userId});
 
-    
+export const verifyToken = async (req: requestInterface, res: Response, next: NextFunction): Promise<any> => {
+    const authHeader = req.headers.authorization;  
+    const token = authHeader && authHeader.split(" ")[1];  
+
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized",
+        });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as JwtPayload;
+        if (!decoded || typeof decoded !== "object" || !decoded.userId) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid JWT Token",
+            });
+        }
+
+        const user = await User.findById(decoded.userId);
         if (!user) {
-            return res.status(401).json({ "success": false, "message": "User not found" });
-          }
+            return res.status(401).json({
+                success: false,
+                message: "User not found",
+            });
+        }
 
         req.user = user;
-
-
         next();
+    } catch (error) {
+        console.error("Error in token verification:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
     }
-    catch(err){
-        res.status(401).json(
-            {
-                "success" : false,
-                "message" : "Invalid or expired token"
-            }
-        )
-    }
-}
+};
 
  

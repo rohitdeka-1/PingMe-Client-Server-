@@ -24,12 +24,12 @@ const Login = () => {
     e.preventDefault();
     try{
       const res = await axiosInstance.post("/auth/login",{identity,password});
-      console.log(res);
       if(res.data.success){
+        localStorage.setItem("ACCESS_TOKEN", res.data.token); 
         toast.success("Access Granted")
         setTimeout(()=>{
           navigate("/home")
-        },1500)
+        },1000)
       }
       else {
         toast.error(res.data.message || "Login failed.");
