@@ -2,11 +2,13 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 import bcrypt from "bcryptjs";
 
 export interface IRequest {
+  _id?: mongoose.Types.ObjectId;
   from: Types.ObjectId;
   status: "pending" | "accepted";
 }
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   username: string;
   email: string;
   password: string;
@@ -21,14 +23,18 @@ export interface IUser extends Document {
 
   comparePassword: (password: string) => Promise<boolean>;
 }
-
 const requestSchema = new Schema<IRequest>(
   {
-    from: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    status: { type: String, enum: ["pending", "accepted"], default: "pending" },
+    from: { type: Schema.Types.ObjectId, ref: "user", required: true },  
+    status: {
+      type: String,
+      enum: ["pending", "accepted"],
+      default: "pending",
+    },
   },
   { _id: false }
 );
+
 
 const userSchema = new Schema<IUser>(
   {

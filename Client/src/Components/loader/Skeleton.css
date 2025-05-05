@@ -15,8 +15,8 @@
 
 /* Orbit container */
 .orbit {
-    width: 60px;  /* Orbit radius */
-    height: 60px;
+    width: 40px;  /* Reduced orbit radius */
+    height: 40px;
     position: relative;
     animation: spin 0.5s linear infinite; /* Continuous rotation */
 }
@@ -24,17 +24,17 @@
 /* Dots */
 .dot {
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 8px; /* Reduced dot size */
+    height: 8px; /* Reduced dot size */
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Initial glow */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Adjusted glow */
     animation: glow 1.5s infinite alternate; /* Glowing effect */
 }
 
 /* Dot positions */
 .r-dot {
     background: #4285F4; /* Blue */
-    top: 0%;
+    top: 10%; /* Adjusted position to bring dots closer */
     left: 50%;
     transform: translate(-50%, -50%);
     animation-delay: 0s; /* Staggered glow */
@@ -43,20 +43,20 @@
 .h-dot {
     background: #FFFFFF; /* White */
     top: 50%;
-    left: 100%;
+    left: 90%; /* Adjusted position to bring dots closer */
     transform: translate(-50%, -50%);
     animation-delay: 0.2s; /* Staggered glow */
 }
 
 .d-dot {
-    background: #F4B400; /* Yellow */
-    top: 100%;
+    background: #F4B400; 
+    top: 90%; 
     left: 50%;
     transform: translate(-50%, -50%);
     animation-delay: 0.4s;  
 }
 
-/* Keyframes for rotation */
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -69,11 +69,11 @@
 /* Keyframes for glowing effect */
 @keyframes glow {
     0% {
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.5); /* Adjusted glow */
         transform: scale(1);
     }
     100% {
-        box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+        box-shadow: 0 0 16px rgba(255, 255, 255, 1); /* Adjusted glow */
         transform: scale(1.2); /* Slightly enlarge the dot */
     }
 }

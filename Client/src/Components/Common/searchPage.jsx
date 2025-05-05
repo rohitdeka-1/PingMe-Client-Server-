@@ -3,21 +3,21 @@ import SearchBar from "./SearchBar";
 import axiosInstance from "../../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { debounce } from "lodash";
-import {jwtDecode} from "jwt-decode";
-
+import { jwtDecode } from "jwt-decode";
+import NOUSER from "../../assets/nouser.png"
 const SearchPage = () => {
   const [results, setResults] = useState([]);
   const [searchPage, setSearchPage] = useState(false);
-  const [query, setQuery] = useState("");  
+  const [query, setQuery] = useState("");
   const searchRef = useRef(null);
 
   const token = localStorage.getItem("ACCESS_TOKEN");
   let loggedInUsername = null;
 
-  if(token){
+  if (token) {
     try {
-      const decodedToken = jwtDecode(token);  
-      loggedInUsername = decodedToken.username;  
+      const decodedToken = jwtDecode(token);
+      loggedInUsername = decodedToken.username;
     } catch (err) {
       console.error("Failed to decode token:", err);
     }
@@ -32,27 +32,27 @@ const SearchPage = () => {
       try {
         const res = await axiosInstance.get(`search?q=${query}&limit=8`);
         console.log("Search results:", res.data);
+ 
         const filteredResults = res.data.results.filter(
-          (item) => item.username !== loggedInUsername 
+          (item) => item.username !== loggedInUsername
         );
         setResults(filteredResults || []);
       } catch (err) {
         console.error("Search failed:", err);
         setResults([]);
       }
-    }, 300)  
+    }, 300)
   ).current;
 
- 
   useEffect(() => {
     debouncedSearch(query);
     return () => {
-      debouncedSearch.cancel();  
+      debouncedSearch.cancel();
     };
   }, [query]);
 
   const handleSearch = (query) => {
-    setQuery(query);  
+    setQuery(query);
   };
 
   useEffect(() => {
@@ -76,18 +76,24 @@ const SearchPage = () => {
       <SearchBar onSearch={handleSearch} onClick={handleClick} />
       {searchPage && (
         <ul
-          className="p-3 absolute bg-[#282828] left-5 right-5 rounded-2xl"
+          className="p-3 absolute bg-[#484848] left-5 right-5 rounded-2xl"
           ref={searchRef}
         >
           {results.length > 0 ? (
             results.map((item) => (
-              <Link key={item._id} to={`/profile/${item.username}`} >
-              <li
-                key={item._id}
-                className="py-3 px-2 text-white hover:bg-[#141414] font-bold rounded-xl"
-              >
-                {item.fullname}
-              </li>
+              <Link key={item._id} to={`/profile/${item.username}`}>
+                <li
+                  key={item._id}
+                  className="py-3 px-2 text-white hover:bg-[#141414] font-bold rounded-xl"
+                >
+                  <img
+                  
+                    src={item.profilePic ||  NOUSER }
+                    alt={`${item.fullname}'s profile`}
+                    className="inline-block w-8 h-8 rounded-full mr-2"
+                  />
+                  {item.fullname}
+                </li>
               </Link>
             ))
           ) : (
