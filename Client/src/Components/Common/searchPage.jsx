@@ -3,6 +3,7 @@ import SearchBar from "./SearchBar";
 import axiosInstance from "../../utils/axiosInstance";
 import { Link } from "react-router-dom";
 import { debounce } from "lodash";
+import {jwtDecode} from "jwt-decode";
 
 const SearchPage = () => {
   const [results, setResults] = useState([]);
@@ -10,6 +11,17 @@ const SearchPage = () => {
   const [query, setQuery] = useState("");  
   const searchRef = useRef(null);
 
+  const token = localStorage.getItem("ACCESS_TOKEN");
+  let loggedInUsername = null;
+
+  if(token){
+    try {
+      const decodedToken = jwtDecode(token);  
+      loggedInUsername = decodedToken.username;  
+    } catch (err) {
+      console.error("Failed to decode token:", err);
+    }
+  }
   // Debounced search function
   const debouncedSearch = useRef(
     debounce(async (query) => {
@@ -20,24 +32,27 @@ const SearchPage = () => {
       try {
         const res = await axiosInstance.get(`search?q=${query}&limit=8`);
         console.log("Search results:", res.data);
-        setResults(res.data.results || []);
+        const filteredResults = res.data.results.filter(
+          (item) => item.username !== loggedInUsername 
+        );
+        setResults(filteredResults || []);
       } catch (err) {
         console.error("Search failed:", err);
         setResults([]);
       }
-    }, 300) // Adjust debounce delay as needed
+    }, 300)  
   ).current;
 
-  // Trigger debounced search when query changes
+ 
   useEffect(() => {
     debouncedSearch(query);
     return () => {
-      debouncedSearch.cancel(); // Cancel any pending debounced calls
+      debouncedSearch.cancel();  
     };
   }, [query]);
 
   const handleSearch = (query) => {
-    setQuery(query); // Update the query state
+    setQuery(query);  
   };
 
   useEffect(() => {
@@ -66,12 +81,14 @@ const SearchPage = () => {
         >
           {results.length > 0 ? (
             results.map((item) => (
+              <Link key={item._id} to={`/profile/${item.username}`} >
               <li
                 key={item._id}
                 className="py-3 px-2 text-white hover:bg-[#141414] font-bold rounded-xl"
               >
-                <Link key={item._id} to={`/profile/${item.username}`} >{item.fullname}</Link>
+                {item.fullname}
               </li>
+              </Link>
             ))
           ) : (
             <li className="p-2 text-white">No results found</li>
