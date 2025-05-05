@@ -3,17 +3,20 @@ import mongoose, { Document, Schema, Types } from "mongoose";
 export interface IMessage extends Document {
   sender: Types.ObjectId;
   content: string;
-  roomId: Types.ObjectId;
-  seen: boolean;
-  timestamp: Date;
+  userId: Types.ObjectId;
+  status: "SENT" | "DELIVERED" | "SEEN";
 }
 
-const messageSchema = new Schema<IMessage>({
-  sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  content: { type: String, required: true, trim: true },
-  roomId: { type: Schema.Types.ObjectId, ref: "ChatRoom", required: true },
-  seen: { type: Boolean, default: false },
-  timestamp: { type: Date, default: Date.now },
-});
+const messageSchema = new Schema<IMessage>(
+  {
+    sender: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    content: { type: String, required: true, trim: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    status: { type: String, enum: ["SENT", "DELIVERED", "SEEN"] },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export default mongoose.model<IMessage>("Message", messageSchema);

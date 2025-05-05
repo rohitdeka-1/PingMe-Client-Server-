@@ -26,7 +26,7 @@ const Public = () => {
     try {
       setisLoading(true)
       const res = await axiosInstance.get(`/user/profile/${username}`)
-      console.log("API Response:", res.data)
+      
 
       if (res.data.success && res.data.user) {
         const { _id, profilePic, about, fullname, username, userImages } = res.data.user
@@ -40,7 +40,7 @@ const Public = () => {
           username: username || "",
         })
 
-        console.log("Setting hasSentRequest to:", res.data.hasSentRequest)
+       
         setHasSentRequest(res.data.hasSentRequest || false)
       } else {
         toast.error("Failed to fetch user data.")
@@ -61,7 +61,7 @@ const Public = () => {
   const handleRequest = async () => {
     try {
       const res = await axiosInstance.post(`/user/request/${user._id}`)
-      console.log("Request response:", res.data)
+      
       toast.success(res.data.message)
 
       
@@ -99,16 +99,16 @@ const Public = () => {
       </div>
 
       <div className="flex justify-center gap-6 p-4">
-        <button className="bg-[#282e32] p-3 hover:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl">
+        <button className="bg-[#282e32] p-3 active:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl">
           Message
         </button>
         <button
           onClick={handleRequest}
-          className={`p-3 hover:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl ${
-            hasSentRequest ? "bg-blue-500" : "bg-green-600"
+          className={`p-3 active:bg-slate-800 transition ease-in-out duration-300 w-full rounded-2xl ${
+            hasSentRequest ? "bg-red-500" : "bg-green-600"
           }`}
         >
-          {hasSentRequest ? "Unsend Request" : "Send Request"}
+          {hasSentRequest ? "Cancel Request" : "Send Request"}
         </button>
       </div>
 

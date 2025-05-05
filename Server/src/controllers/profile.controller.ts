@@ -277,7 +277,6 @@ export const handeRequest = async (
       .json({ success: false, message: "Internal server error" });
   }
 };
-
 export const getUserRequests = async (
   req: requestInterface,
   res: Response
@@ -300,8 +299,11 @@ export const getUserRequests = async (
 
     return res.status(200).json({
       success: true,
-      requests: pendingRequests,
-     
+      requests: pendingRequests.map((request) => ({
+        _id: request._id || request.from._id,
+        from: request.from,
+        status: request.status,
+      })),
     });
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -310,30 +312,35 @@ export const getUserRequests = async (
       .json({ success: false, message: "Internal server error" });
   }
 };
-
+ 
 export const acceptRequest = async (
   req: requestInterface,
   res: Response
 ): Promise<any> => {
-  const { requestId } = req.params;
+  const { fromUserId } = req.params;
 
   try {
     const currentUser = await User.findById(req.user?._id);
 
     if (!currentUser) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    console.log("User requests array:", currentUser.requests.map(r => ({
+      _id: r._id?.toString(),
+      from: r.from.toString(),
+      status: r.status,
+    })));
+
+    console.log("fromUserId from param:", fromUserId);
+
+    // Find matching request by 'from' field
     const request = currentUser.requests.find(
-      (r) => r._id?.toString() === requestId
+      (r) => r.from.toString() === fromUserId && r.status === "pending"
     );
 
     if (!request) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Request not found" });
+      return res.status(404).json({ success: false, message: "Request not found" });
     }
 
     request.status = "accepted";
@@ -342,17 +349,17 @@ export const acceptRequest = async (
     return res.status(200).json({ success: true, message: "Request accepted" });
   } catch (error) {
     console.error("Accept error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Something went wrong" });
+    return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
+
+
 
 export const rejectRequest = async (
   req: requestInterface,
   res: Response
 ): Promise<any> => {
-  const { requestId } = req.params;
+  const { fromUserId } = req.params;
 
   try {
     const currentUser = await User.findById(req.user?._id);
@@ -363,9 +370,19 @@ export const rejectRequest = async (
         .json({ success: false, message: "User not found" });
     }
 
+    // Filter out the request from that specific user
+    const originalLength = currentUser.requests.length;
     currentUser.requests = currentUser.requests.filter(
-      (r) => r._id?.toString() !== requestId
+      (r) => r.from.toString() !== fromUserId || r.status !== "pending"
     );
+
+    // If no request was removed
+    if (currentUser.requests.length === originalLength) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Request not found" });
+    }
+
     await currentUser.save();
 
     return res.status(200).json({ success: true, message: "Request rejected" });

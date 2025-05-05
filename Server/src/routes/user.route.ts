@@ -14,7 +14,8 @@ userRouter.get("/profile/:username", verifyToken, getUserProfile)
 userRouter.post("/upload-image", verifyToken, uploadImages, uploadImage)
 userRouter.post("/request/:targetId", verifyToken, handeRequest)
 userRouter.get("/requests", verifyToken, getUserRequests);
-userRouter.post("/requests/accept/:requestId", verifyToken, acceptRequest);
-userRouter.post("/requests/reject/:requestId", verifyToken, rejectRequest);
+userRouter.post("/requests/accept/:fromUserId", verifyToken, acceptRequest);
+userRouter.post("/requests/reject/:fromUserId", verifyToken, rejectRequest);
+
 
 export default userRouter

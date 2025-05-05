@@ -20,6 +20,7 @@ export interface IUser extends Document {
   profilePic: string;
   fullname: string;
   userImages: string[];
+  
 
   comparePassword: (password: string) => Promise<boolean>;
 }
@@ -32,7 +33,6 @@ const requestSchema = new Schema<IRequest>(
       default: "pending",
     },
   },
-  { _id: false }
 );
 
 
@@ -49,6 +49,7 @@ const userSchema = new Schema<IUser>(
     profilePic: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
     userImages: [{type:String}],
+  
   },
   {
     timestamps: true,

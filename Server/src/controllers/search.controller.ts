@@ -14,7 +14,7 @@ export const handleSearch = async (req: Request, res: Response):Promise<any> => 
     const regex = new RegExp(`^${q}`, "i"); // ^ ensures it matches the beginning of the username
  
     const users = await User.find({
-      $or:[{username:regex},{email:regex}]
+      $or:[{username:regex},{email:regex},{fullname:regex}]
       
     }).limit(limit);
     
