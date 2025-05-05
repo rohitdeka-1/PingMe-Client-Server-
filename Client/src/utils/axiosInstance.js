@@ -1,5 +1,4 @@
 import axios from "axios";
-import { navigateToLogin } from "./navigateToLogin";
 
 const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_BACKEND_URI}/api/v1`,  
@@ -20,7 +19,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      navigateToLogin();  
+       
+      window.location.replace("/login");
     }
     return Promise.reject(error);
   }
