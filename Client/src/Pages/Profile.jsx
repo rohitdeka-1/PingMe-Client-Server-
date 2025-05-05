@@ -17,7 +17,9 @@ const Profile = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const res = await axiosInstance.get("/user/profile");
+        const res = await axiosInstance.get("/user/profile",{
+          withCredentials: true,
+        });
         setFullname(res.data.user.fullname);
         setAbout(res.data.user.about);
         setUserImages(res.data.user.userImages || []);
