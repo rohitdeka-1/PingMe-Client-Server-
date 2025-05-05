@@ -197,7 +197,7 @@ export const handleSendResetMail = async (
       }
     );
 
-    const resetLink = `http://localhost:5173/resetpassword/${encodeURIComponent(
+    const resetLink = `https://pingme-delta.vercel.app/resetpassword/${encodeURIComponent(
       TOKEN
     )}`;
 
