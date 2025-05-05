@@ -1,10 +1,9 @@
-"use client"
-
+ 
 import { useEffect, useState } from "react"
 import Form from "../Components/Auth/Form"
 import { useParams, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
-import axios from "axios"
+// import axios from "axios"
 import axiosInstance from "../utils/axiosInstance"
 
 
@@ -76,12 +75,9 @@ const ResetPass = () => {
     }
 
     setLoading(true)
-    const url = `${backendURI}/auth/resetpassword/${token}`
-
-    console.log("Making request to:", url)
 
     try {
-      const res = await axios.post(url, {
+      const res = await axiosInstance.post(`/auth/resetpassword/${token}`, {
         password1: pass1,
         password2: pass2,
       })
