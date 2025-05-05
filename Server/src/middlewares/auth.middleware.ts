@@ -8,41 +8,32 @@ dotenv.config();
 export interface requestInterface extends Request {
     user?: IUser;
 }
-
-export const verifyToken = async(req:requestInterface,res:Response,next:NextFunction):Promise<void> => {
-    const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET;
-    // const Token = req.headers.authorization;
-    const token = req.cookies.ACCESS_TOKEN;
-    if(!token){
-        res.status(401).json({
-            success : false,
-            message: "Unauthorized"
-        })
-    }
+export const verifyToken = async(req:requestInterface,res:Response,next:NextFunction):Promise<any> => {
+    const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET
+    const token = req.cookies.accessToken;
+    if(!token) return res.status(401).json({"success":false,"message" : "Access Denied"});
     try{
-        const decoded = jwt.verify(token,`${JWT_SECRET}`) as JwtPayload ;
-        if(!decoded || typeof(decoded)!=="object" || !decoded.userId){
-            console.error("Invalid JWT Token ")
-            res.status(400).json({
-                success : false,
-                message : "Invalid JWT Token"
-            })
-        }
-        
-        const user = await User.findById(decoded.userId);
-        if(!user){
-            res.status(401).json({
-                success: false,
-                message : "User not found" 
-            })
-        }
-        else{
-            req.user = user;
-        }
-        
+        const decoded:{userId:string} = jwt.verify(token,`${JWT_SECRET}` ) as {userId:string};
+        const user = await User.findOne({_id:decoded.userId});
+
+    
+        if (!user) {
+            return res.status(401).json({ "success": false, "message": "User not found" });
+          }
+
+        req.user = user;
+
+
         next();
     }
-    catch(error){
-        console.error("Error in token verification : ",error);
+    catch(err){
+        res.status(401).json(
+            {
+                "success" : false,
+                "message" : "Invalid or expired token"
+            }
+        )
     }
 }
+
+ 
