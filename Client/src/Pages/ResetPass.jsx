@@ -16,7 +16,7 @@ const ResetPass = () => {
   const { token } = useParams()
   const [validToken, setValidToken] = useState(null)
   const navigate = useNavigate()
-  const backendURI = import.meta.env.VITE_BACKEND_URI
+  // const backendURI = import.meta.env.VITE_BACKEND_URI
 
   useEffect(() => {
     const validateToken = async () => {
@@ -35,7 +35,7 @@ const ResetPass = () => {
       }
     }
     validateToken()
-  }, [token, backendURI])
+  }, [token])
 
   const validatePassword = (password) => {
     if (password.length < 6) {
