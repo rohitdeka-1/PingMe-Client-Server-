@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Form from "../Components/Auth/Form";
 import { Link } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import { toast } from "react-hot-toast";
+import axiosInstance from "../utils/axiosInstance";
 
 const Reset = () => {
   const [email, setEmail] = useState("");
@@ -15,9 +16,9 @@ const Reset = () => {
   const handleResetEmail = async (e) => {
     e.preventDefault();
     setLoading(true)
-    const backendURI = `${import.meta.env.VITE_BACKEND_URI}/api/v1/auth/reset`;
+     
     try {
-      const response = await axios.post(`${backendURI}`,{email});
+      const response = await axiosInstance.post("/auth/reset",{email});
       if (response.data.success) {
         toast.success("Check your email for the password reset link.");
         setIsEmailSent(true);

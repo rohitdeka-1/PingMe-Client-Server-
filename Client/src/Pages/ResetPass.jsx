@@ -5,6 +5,7 @@ import Form from "../Components/Auth/Form"
 import { useParams, useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
 import axios from "axios"
+import axiosInstance from "../utils/axiosInstance"
 
 
 const ResetPass = () => {
@@ -22,7 +23,7 @@ const ResetPass = () => {
     const validateToken = async () => {
       try {
         setValidating(true)
-        const response = await axios.get(`${backendURI}/api/v1/auth/resetpassword/${token}`)
+        const response = await axiosInstance.get(`auth/resetpassword/${token}`)
         if (response.data.success) {
           setValidToken(response.data.success)
         }
@@ -75,7 +76,7 @@ const ResetPass = () => {
     }
 
     setLoading(true)
-    const url = `${backendURI}/api/v1/auth/resetpassword/${token}`
+    const url = `${backendURI}/auth/resetpassword/${token}`
 
     console.log("Making request to:", url)
 
