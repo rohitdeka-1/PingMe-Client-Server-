@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {Link} from "react-router-dom"
 import axiosInstance from "../../utils/axiosInstance";
+import {io} from "socket.io-client";
+
+const socket = io("http://localhost:8800");
 const Request = () => {
 
   const [requestNumber, setrequestNumber] = useState(0)
@@ -11,12 +14,25 @@ const Request = () => {
         const res = await axiosInstance.get("/user/requests");
         const requests = res.data.requests.length;
         setrequestNumber(requests);
+
+        const userId = res.data.userId;  
+        socket.emit("joinRoom", userId);
       }
       catch(err){
         console.error(err);
       }
     }
     handleRequestNumber();
+
+    socket.on("requestUpdated", (data) => {
+      setrequestNumber(data.requestCount);
+    });
+ 
+    return () => {
+      socket.off("requestUpdated");
+    };
+
+
   },[])
 
   return (

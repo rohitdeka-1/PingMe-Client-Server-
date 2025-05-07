@@ -68,12 +68,7 @@ export const handleUserRegister = async (
       } as SignOptions
     );
 
-    res.cookie("ACCESS_TOKEN", TOKEN, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000,
-    });
+    
 
 
     return res.status(200).json({
@@ -128,14 +123,7 @@ export const handleUserLogin = async (
           expiresIn: "1h",
         }
       );
-
-      res.cookie("ACCESS_TOKEN", TOKEN, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 60 * 60 * 1000,
-      });
-
+ 
       return res.status(200).json({
         success: true,
         message: "Access Granted",

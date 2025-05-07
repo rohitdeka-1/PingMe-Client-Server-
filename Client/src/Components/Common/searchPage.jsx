@@ -24,14 +24,14 @@ const SearchPage = () => {
   }
   // Debounced search function
   const debouncedSearch = useRef(
-    debounce(async (query) => {
+    debounce(async (query) => { 
       if (query === "") {
         setResults([]);
         return;
       }
       try {
         const res = await axiosInstance.get(`search?q=${query}&limit=8`);
-        console.log("Search results:", res.data);
+       
  
         const filteredResults = res.data.results.filter(
           (item) => item.username !== loggedInUsername

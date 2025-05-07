@@ -1,4 +1,4 @@
-import app from "./app";
+import { app,httpServer } from "./app";
 import connectDB from "./database/db";
 import dotenv from "dotenv";
 dotenv.config();
@@ -6,7 +6,7 @@ const PORT = process.env.PORT;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Connected on port ${PORT}`);
     });
   })

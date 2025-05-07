@@ -82,7 +82,7 @@ const ResetPass = () => {
         password2: pass2,
       })
 
-      console.log("Response:", res.data)
+ 
 
       if (res.data.success) {
         toast.success("Password updated successfully!")

@@ -3,6 +3,7 @@ import axiosInstance from "../../utils/axiosInstance";
 import { Link, useNavigate } from "react-router-dom";
 import NoUser from "../../assets/nouser.png";
 import Skeleton from "../loader/Loading";
+import {socket} from "../../utils/socket.js"; 
 
 const Requests = () => {
   const [requests, setRequests] = useState([]);
@@ -20,8 +21,10 @@ const Requests = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched Requests:", response.data.requests);
+
         setRequests(response.data.requests || []);
+        const userId = response.data.userId;  
+        socket.emit("joinRoom", userId);
       } catch (err) {
         console.error(
           "Error fetching requests:",
@@ -36,20 +39,27 @@ const Requests = () => {
     };
 
     fetchRequests();
+    // Listen for real-time updates
+    socket.on("requestUpdated", (data) => {
+      console.log("Real-time update received:", data.requests);
+      setRequests(data.requests || []);
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off("requestUpdated");
+    };
   }, [navigate]);
 
   const handleAccept = async (request) => {
     const requestId = request._id;
     const fromUserId = request.from._id;
-  
-    console.log("Accepting Request ID:", requestId);
-    console.log("Accepting From User ID:", fromUserId);
-  
+
     if (!fromUserId) {
       console.error("From User ID is undefined");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await axiosInstance.post(
@@ -61,7 +71,7 @@ const Requests = () => {
           },
         }
       );
-  
+
       if (response.data.success) {
         console.log("Request accepted successfully");
         // Update request status to accepted
@@ -80,19 +90,16 @@ const Requests = () => {
       );
     }
   };
-  
+
   const handleReject = async (request) => {
     const requestId = request._id;
     const fromUserId = request.from._id;
-  
-    console.log("Rejecting Request ID:", requestId);
-    console.log("Rejecting From User ID:", fromUserId);
-  
+
     if (!fromUserId) {
       console.error("From User ID is undefined");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("ACCESS_TOKEN");
       const response = await axiosInstance.post(
@@ -104,7 +111,7 @@ const Requests = () => {
           },
         }
       );
-  
+
       if (response.data.success) {
         console.log("Request rejected successfully");
         setRequests((prev) =>
@@ -122,8 +129,6 @@ const Requests = () => {
       );
     }
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-[#161717] text-white p-6">
@@ -142,7 +147,6 @@ const Requests = () => {
       ) : (
         <div className="space-y-4 max-w-xl mx-auto">
           {requests.map((request) => {
-            console.log("Request Object:", request);
             return (
               <div
                 key={request._id}

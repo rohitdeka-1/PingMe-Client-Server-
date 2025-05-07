@@ -4,6 +4,7 @@ import type { requestInterface } from "../middlewares/auth.middleware";
 import { uploadOnCloudinary } from "../services/cloudinary.service";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import { io } from "../app";
 
 export const updateUser = async (
   req: requestInterface,
@@ -262,6 +263,11 @@ export const handeRequest = async (
 
     await targetUser.save();
 
+    io.to(targetId).emit("requestUpdated", {
+      requestCount: targetUser.requests.filter((r) => r.status === "pending")
+        .length,
+    });
+
     return res.status(200).json({
       success: true,
       action: existingRequest ? "unsent" : "sent",
@@ -299,11 +305,12 @@ export const getUserRequests = async (
 
     return res.status(200).json({
       success: true,
+      userId: currentUser._id, 
       requests: pendingRequests.map((request) => ({
         _id: request._id || request.from._id,
         from: request.from,
         status: request.status,
-      })),
+      })) || [] ,
     });
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -334,7 +341,7 @@ export const acceptRequest = async (
 
     console.log("fromUserId from param:", fromUserId);
 
-    // Find matching request by 'from' field
+  
     const request = currentUser.requests.find(
       (r) => r.from.toString() === fromUserId && r.status === "pending"
     );
@@ -345,6 +352,11 @@ export const acceptRequest = async (
 
     request.status = "accepted";
     await currentUser.save();
+
+    io.to(currentUser._id.toString()).emit("requestUpdated", {
+      requestCount: currentUser.requests.filter((r) => r.status === "pending")
+        .length,
+    });
 
     return res.status(200).json({ success: true, message: "Request accepted" });
   } catch (error) {
@@ -384,6 +396,7 @@ export const rejectRequest = async (
     }
 
     await currentUser.save();
+    
 
     return res.status(200).json({ success: true, message: "Request rejected" });
   } catch (error) {

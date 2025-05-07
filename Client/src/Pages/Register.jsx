@@ -36,6 +36,8 @@ const Register = () => {
       setloading(true)
       const res = await axiosInstance.post("/auth/register",{email,password,fullname,username});
       if(res.data.success){
+        const token = res.data.accessToken;  
+        localStorage.setItem("ACCESS_TOKEN", token);
         toast.success(res.data.message);
         setTimeout(()=>{
           navigate("/home")

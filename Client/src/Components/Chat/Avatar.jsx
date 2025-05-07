@@ -11,7 +11,7 @@ const Avatar = () => {
       try {
         const response = await axiosInstance.get("/user/profile");
         setprofilePhoto(response.data.user.profilePic);
-        console.log(response);
+   
       } catch (err) {
         console.log(err);
       }
