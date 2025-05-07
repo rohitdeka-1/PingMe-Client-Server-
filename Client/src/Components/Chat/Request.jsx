@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {Link} from "react-router-dom"
 import axiosInstance from "../../utils/axiosInstance";
-import {io} from "socket.io-client";
+import { socket } from "../../utils/socket";
 
-const socket = io("http://localhost:8800");
+
+// const socket = io("http://localhost:8800");
 const Request = () => {
 
   const [requestNumber, setrequestNumber] = useState(0)
