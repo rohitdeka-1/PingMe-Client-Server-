@@ -52,15 +52,15 @@
         </div>
         <div className="relative z-10 flex flex-col h-full">
           <Heading />
-          <div className="flex-grow w-full mt-1 overflow-y-auto">
+          {/* <div className="flex-grow w-full mt-1 overflow-y-auto"> */}
             {/* Display chat messages */}
-            {chatData.messages.map((msg) => (
-              <div key={msg.id} className="mb-2">
-                <p className="text-white">{msg.content}</p>
-                <p className="text-slate-400 text-sm">{new Date(msg.timestamp).toLocaleTimeString()}</p>
-              </div>
-            ))}
-          </div>
+            {/* {chatData.messages.map((msg) => ( */}
+              {/* <div key={msg.id} className="mb-2"> */}
+                {/* <p className="text-white">{msg.content}</p> */}
+                {/* <p className="text-slate-400 text-sm">{new Date(msg.timestamp).toLocaleTimeString()}</p> */}
+              {/* </div> */}
+            {/* ))} */}
+          {/* </div> */}
           <TextArea />
         </div>
       </div>

@@ -8,11 +8,11 @@ import Skeleton from "../Components/loader/Loading";
 import Request from "../Components/Chat/Request";
 
 const Home = () => {
-  const [acceptedUsers, setAcceptedUsers] = useState([]); // State for accepted users
+  const [acceptedUsers, setAcceptedUsers] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch accepted users
+
   useEffect(() => {
     const fetchAcceptedUsers = async () => {
       try {
@@ -20,7 +20,6 @@ const Home = () => {
         const response = await axiosInstance.get("/user/accepted-users");
         console.log(response);
   
-        // Extract necessary data for accepted requests
         const accepted = response.data.acceptedUsers
           .filter((req) => req && req.id)  
           .map((req) => ({
