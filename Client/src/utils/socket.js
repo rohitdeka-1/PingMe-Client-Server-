@@ -1,4 +1,18 @@
-import { io } from "socket.io-client";
+import {io} from "socket.io-client"
 
-const socket = io("https://pingme-client-server.onrender.com");
-export {socket};
+const token = localStorage.getItem("ACCESS_TOKEN");  
+if (!token) {
+  console.error("No token found");
+}
+
+const socket = io(`${import.meta.env.VITE_BACKEND_URI}`, {
+  transports: ["websocket"],
+  withCredentials: true,
+  auth: {
+    token,  
+  },
+});
+
+export { socket };
+
+
