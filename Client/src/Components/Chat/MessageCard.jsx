@@ -1,18 +1,25 @@
 import { Link } from "react-router-dom";
-import Avatar from "./Avatar";
+import NoUser from "../../assets/nouser.png";
 
 const MessageCard = ({ chats }) => {
   return (
-    <div className="mt-5 mb-5 py-3 px-1 flex flex-col w-full hover:bg-[#2E2F2F] rounded-xl">
+    <div className="mt-5 mb-5 w-full">
       {chats.map((chat) => (
-        <Link to={`/chat/${chat.id}`} key={chat.id} className="flex items-center space-x-4 py-2">
-          <Avatar />
-          <div className="flex-grow">
-            <p className="text-white font-sans text-xl">{chat.name}</p>
-            <p className="text-[1rem] text-slate-400">{chat.message}</p>
-          </div>
-          <div className="text-slate-400">{chat.time}</div>
-        </Link>
+        <div
+          key={chat.id}
+          className="py-3 px-1 flex items-center space-x-4 hover:bg-[#2E2F2F] rounded-xl"
+        >
+          <Link to={`/chat/${chat.id}`} className="flex items-center space-x-4 w-full">
+            <img
+              src={chat.profilePic || NoUser}
+              alt="User Avatar"
+              className="h-12 w-12 rounded-full object-cover"
+            />
+            <div className="flex-grow">
+              <p className="text-white font-sans text-xl">{chat.name}</p>
+            </div>
+          </Link>
+        </div>
       ))}
     </div>
   );

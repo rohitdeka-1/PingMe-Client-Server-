@@ -13,8 +13,7 @@ export const initSocket = (io: Server) => {
     try {
       // Verify the token using the same secret and logic as the JWT middleware
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as jwt.JwtPayload;
-      console.log("Decoded Token:", decoded); // Log decoded token to inspect
-
+   
       // Ensure the decoded token contains userId (based on your verifyToken middleware)
       if (typeof decoded !== "string" && "userId" in decoded) {
         socket.data.userId = decoded.userId; // Store userId on the socket for future use
@@ -31,7 +30,7 @@ export const initSocket = (io: Server) => {
   // Handle new socket connections
   io.on("connection", (socket) => {
     const userId = socket.data.userId; // Access userId from socket.data
-
+ 
     if (!userId) {
       console.error("User ID not found. Disconnecting...");
       socket.disconnect(); // Disconnect if no userId

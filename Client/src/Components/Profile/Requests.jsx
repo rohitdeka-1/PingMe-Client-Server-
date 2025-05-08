@@ -39,13 +39,13 @@ const Requests = () => {
     };
 
     fetchRequests();
-    // Listen for real-time updates
+ 
     socket.on("requestUpdated", (data) => {
       console.log("Real-time update received:", data.requests);
       setRequests(data.requests || []);
     });
 
-    // Cleanup on component unmount
+ 
     return () => {
       socket.off("requestUpdated");
     };
@@ -74,7 +74,6 @@ const Requests = () => {
 
       if (response.data.success) {
         console.log("Request accepted successfully");
-        // Update request status to accepted
         setRequests((prev) =>
           prev.map((req) =>
             req._id === requestId ? { ...req, status: "accepted" } : req

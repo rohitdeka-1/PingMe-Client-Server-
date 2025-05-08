@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 
 export interface IRequest {
   _id?: mongoose.Types.ObjectId;
-  from: Types.ObjectId;
+  from: Types.ObjectId | IUser;
   status: "pending" | "accepted";
 }
 
