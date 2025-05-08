@@ -1,70 +1,147 @@
-  import React, { useState, useEffect } from "react";
-  import { useParams } from "react-router-dom";
-  import Heading from "../Components/Chatter/Heading";
-  import Background from "../../src/assets/background.webp";
-  import TextArea from "../Components/Chatter/TextArea";
-  // import axios from "axios";
-  import Skeleton from "../Components/loader/Loading";
+import React, { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import Heading from "../Components/Chatter/Heading";
+import Background from "../../src/assets/background.webp";
+import TextArea from "../Components/Chatter/TextArea";
+import Skeleton from "../Components/loader/Loading";
+import { socket } from "../utils/socket";
+import axiosInstance from "../utils/axiosInstance";
 
-  const Chat = () => {
-    const { userId } = useParams();  
-    const [chatData, setChatData] = useState(null);  
-    const [loading, setLoading] = useState(true);  
-    const [error, setError] = useState(null);  
+const Chat = () => {
+  const { userId } = useParams(); // Get the user ID from the route parameter
+  const location = useLocation(); // Access the state passed via Link
+  const { name, profilePic } = location.state || {}; // Destructure additional data
 
-    useEffect(() => {
-      const fetchChatData = async () => {
-        try {
-          setLoading(true);
-          // const response = await axios.get(`/chats/${userId}`);  
-          setChatData("in developement");
-          setLoading(false);
-        } catch {
-          // console.error("Error fetching chat data:", err.response?.data || err.message);
-          setError("Failed to load chat. Please try again later.");
-          setLoading(false);
-        }
-      };
+  const [chatData, setChatData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+ 
 
-      fetchChatData();
-    }, [userId]);
-
-    if (loading) {
-      
-      <Skeleton/>;
-    }
-
-    if (error) {
-      return <p className="min-h-screen flex justify-center bg-black  items-center text-red-500 text-center">{error}</p>;
-    }
-
-    return (
-      <div className="min-h-screen bg-[#161717] text-white p-4 relative overflow-hidden">
+  useEffect(() => {
+    const fetchChatData = async () => {
+      try {
+        setLoading(true);
+        // Fetch chat messages from the backend
+        const response = await axiosInstance.get(`/chat/${userId}`);
+        console.log("Current User ID:", response.data.currentUserId); // Debug log
+      console.log("Messages:", response.data.messages);
+        setChatData({ messages: response.data.messages,currentUserId: response.data.currentUserId, });
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load chat. Please try again later.");
+        setLoading(false);
+        console.log(err);
         
-        <div className="absolute inset-0">
-          <img
-            src={Background}
-            className="w-full h-full object-cover rounded-lg"
-            style={{
-              opacity: "70%",
-            }}
-          />
-        </div>
-        <div className="relative z-10 flex flex-col h-full">
-          <Heading />
-          {/* <div className="flex-grow w-full mt-1 overflow-y-auto"> */}
-            {/* Display chat messages */}
-            {/* {chatData.messages.map((msg) => ( */}
-              {/* <div key={msg.id} className="mb-2"> */}
-                {/* <p className="text-white">{msg.content}</p> */}
-                {/* <p className="text-slate-400 text-sm">{new Date(msg.timestamp).toLocaleTimeString()}</p> */}
-              {/* </div> */}
-            {/* ))} */}
-          {/* </div> */}
-          <TextArea />
-        </div>
-      </div>
-    );
+      }
+    };
+
+    fetchChatData();
+
+    // Listen for incoming messages
+    socket.on("receive-message", (message) => {
+      setChatData((prev) => ({
+        ...prev,
+        messages: [...prev.messages, message],
+      }));
+    });
+
+    return () => {
+      socket.off("receive-message");
+    };
+  }, [userId]);
+
+
+  const handleSendMessage = (content) => {
+    if (!content.trim()) return;
+
+    const message = {
+      senderId: chatData.currentUserId,
+      receiverId: userId,
+      content,
+      timestamp: new Date(),
+    };
+
+    // Emit the message to the server
+    socket.emit("send-message", { to: userId, content });
+
+    // Optimistically update the chat UI
+    setChatData((prev) => ({
+      ...prev,
+      messages: [...prev.messages, message],
+    }));
   };
 
-  export default Chat;
+  if (loading) {
+    return <Skeleton />;
+  }
+
+  if (error) {
+    return (
+      <p className="min-h-screen flex justify-center bg-black items-center text-red-500 text-center">
+        {error}
+      </p>
+    );
+  }
+
+  // const handleSendMessage = (content) => {
+  //   if (!content.trim()) return;
+
+  //   const newMessage = {
+  //     id: chatData.messages.length + 1, // Generate a unique ID
+  //     senderId: currentUserId,
+  //     content,
+  //     timestamp: new Date(),
+  //   };
+
+  //   // Optimistically update the chat UI
+  //   setChatData((prev) => ({
+  //     ...prev,
+  //     messages: [...prev.messages, newMessage],
+  //   }));
+
+  //   // Simulate sending the message to the backend
+  //   console.log("Message sent:", newMessage);
+  // };
+
+ 
+
+  return (
+    <div className="min-h-screen bg-[#161717] text-white relative overflow-hidden">
+      {/* Fixed Background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${Background})`,
+          backgroundAttachment: "fixed", // Fix the background
+          opacity: "70%",
+        }}
+      ></div>
+
+      {/* Chat Content */}
+      <div className="relative z-10 flex mt-2 flex-col h-full">
+        <Heading name={name} profilePic={profilePic} />
+        <div className="flex-grow ml-1 mt-[70px] mb-[70px] w-full text-md overflow-y-auto p-4">
+  {chatData?.messages.map((msg, index) => (
+    <div
+      key={msg.id || index} // Use msg.id if available, otherwise fallback to index
+      className={`mb-2 max-w-[70%] px-3 py-2 rounded-xl ${
+        msg.senderId === chatData.currentUserId
+          ? "bg-blue-500 text-white ml-auto" // Messages from the current user
+          : "bg-gray-700 text-white self-start" // Messages from the sender
+      }`}
+    >
+      <p className="break-words">{msg.content}</p>
+      <p className="text-slate-400 text-sm text-right">
+        {new Date(msg.timestamp).toLocaleTimeString()}
+      </p>
+    </div>
+  ))}
+</div>  
+
+        <TextArea onSendMessage={handleSendMessage} />   
+      </div>
+    </div>
+  );
+};
+
+export default Chat;

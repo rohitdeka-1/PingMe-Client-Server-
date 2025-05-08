@@ -1,58 +1,68 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import Chat from "../models/chat.model";
 
 export const initSocket = (io: Server) => {
-  // Authentication middleware for Socket.io
+  // Middleware to authenticate socket connections
   io.use((socket, next) => {
-    const token = socket.handshake.auth?.token; // Get token from socket handshake
+    const token = socket.handshake.auth?.token;
 
     if (!token) {
       return next(new Error("No token provided"));
     }
 
     try {
-      // Verify the token using the same secret and logic as the JWT middleware
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as jwt.JwtPayload;
-   
-      // Ensure the decoded token contains userId (based on your verifyToken middleware)
-      if (typeof decoded !== "string" && "userId" in decoded) {
-        socket.data.userId = decoded.userId; // Store userId on the socket for future use
-        next(); // Proceed with connection
-      } else {
-        throw new Error("Invalid token payload");
-      }
+      socket.data.userId = decoded.userId; // Store userId in socket
+      next();
     } catch (err) {
-      console.error("Socket auth failed:", err instanceof Error ? err.message : err);
+      console.error("Socket authentication failed:", err);
       next(new Error("Authentication error"));
     }
   });
 
-  // Handle new socket connections
+  // Handle socket connections
   io.on("connection", (socket) => {
-    const userId = socket.data.userId; // Access userId from socket.data
- 
+    const userId = socket.data.userId;
+
     if (!userId) {
       console.error("User ID not found. Disconnecting...");
-      socket.disconnect(); // Disconnect if no userId
+      socket.disconnect();
       return;
     }
 
-    socket.join(userId); // Join the user's specific room
-    console.log(`Socket connected: ${socket.id}, userId: ${userId}`);
+    // Join the user to their specific room
+    socket.join(userId);
+    console.log(`User connected: ${userId}, Socket ID: ${socket.id}`);
 
     // Listen for "send-message" events
-    socket.on("send-message", ({ to, content }) => {
+    socket.on("send-message", async ({ to, content }) => {
       const message = {
-        sender: userId,
+        senderId: userId,
+        receiverId: to,
         content,
-        createdAt: new Date(),
+        timestamp: new Date(),
       };
-      io.to(to).emit("receive-message", message); // Emit message to recipient
+
+      // Emit the message to the recipient
+      io.to(to).emit("receive-message", message);
+
+      // Save the message to the database
+      try {
+        const chat = await Chat.findOneAndUpdate(
+          { participants: { $all: [userId, to] } },
+          { $push: { messages: message } },
+          { new: true, upsert: true }
+        );
+        console.log("Message saved to database:", chat);
+      } catch (err) {
+        console.error("Error saving message to database:", err);
+      }
     });
 
-    // Handle socket disconnection
+    // Handle disconnection
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+      console.log(`User disconnected: ${userId}`);
     });
   });
 };

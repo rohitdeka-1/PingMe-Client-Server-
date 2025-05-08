@@ -51,7 +51,7 @@ const Home = () => {
 
       {/* Accepted Users Section */}
       <div className="mt-6">
-        <h3 className="text-slate-300 text-md font-bold mb-4">Messages</h3>
+        <h3 className="text-slate-300 text-md px-1 font-bold mb-4">Messages</h3>
         {error ? (
           <p className="text-red-500 text-center">{error}</p>
         ) : acceptedUsers.length === 0 ? (

@@ -4,6 +4,8 @@ import type { requestInterface } from "../middlewares/auth.middleware";
 import { uploadOnCloudinary } from "../services/cloudinary.service";
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
+import Chat from "../models/chat.model";
+
 import { io } from "../app";
 
 export const updateUser = async (
@@ -353,47 +355,82 @@ export const getUserRequests = async (
   }
 };
 
-export const acceptRequest = async (
-  req: requestInterface,
-  res: Response
-): Promise<any> => {
+
+export const acceptRequest = async (req: requestInterface, res: Response): Promise<any> => {
   const { fromUserId } = req.params;
 
   try {
-    // 1. Find the current user by their ID
+    // Find the current user by their ID
     const currentUser = await User.findById(req.user?._id);
 
-    // 2. If user not found, return error
     if (!currentUser) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
- 
-    // 4. Find the pending request from the specific user (fromUserId)
-    const request = currentUser.requests.find((request) => {
-      return request.from.toString() === fromUserId && request.status === "pending";
-    });
+    // Find the user who sent the request
+    const fromUser = await User.findById(fromUserId);
 
-    // 5. If request is not found, return error
-    if (!request) {
-      return res.status(404).json({ success: false, message: "Request not found" });
+    if (!fromUser) {
+      return res.status(404).json({ success: false, message: "Request sender not found" });
     }
 
-    // 6. Update the request status to 'accepted'
-    request.status = "accepted";
-    await currentUser.save();
+    // Find the pending request in the current user's requests array
+    const request = currentUser.requests.find(
+      (req) => req.from.toString() === fromUserId && req.status === "pending"
+    );
 
-    // 7. Emit the updated request count to the user
-    io.to(currentUser._id.toString()).emit("requestUpdated", {
-      requestCount: currentUser.requests.filter((request) => request.status === "pending").length,
+    if (!request) {
+      return res.status(404).json({ success: false, message: "Request not found or already accepted" });
+    }
+
+    // Update the request status to 'accepted' in the current user's requests array
+    request.status = "accepted";
+
+    // Add the current user to the `fromUser`'s requests array with status 'accepted'
+    const existingRequestInFromUser = fromUser.requests.find(
+      (req) => req.from.toString() === currentUser._id.toString()
+    );
+
+    if (existingRequestInFromUser) {
+      existingRequestInFromUser.status = "accepted";
+    } else {
+      fromUser.requests.push({
+        from: currentUser._id,
+        status: "accepted",
+      });
+    }
+
+    // Save both users
+    await currentUser.save();
+    await fromUser.save();
+
+    // Create a chat between the two users if it doesn't already exist
+    const existingChat = await Chat.findOne({
+      participants: { $all: [currentUser._id, fromUserId] },
     });
 
-    // 8. Return success message
-    return res.status(200).json({ success: true, message: "Request accepted" });
+    if (!existingChat) {
+      const newChat = new Chat({
+        participants: [currentUser._id, fromUserId],
+        messages: [],
+      });
+      await newChat.save();
+    }
 
+    // Emit the updated request count to the user
+    io.to(currentUser._id.toString()).emit("requestUpdated", {
+      requestCount: currentUser.requests.filter((req) => req.status === "pending").length,
+    });
+
+    io.to(fromUser._id.toString()).emit("requestUpdated", {
+      requestCount: fromUser.requests.filter((req) => req.status === "pending").length,
+    });
+
+    // Return success message
+    return res.status(200).json({ success: true, message: "Request accepted" });
   } catch (error) {
-    console.error("Accept error:", error);
-    return res.status(500).json({ success: false, message: "Something went wrong" });
+    console.error("Error accepting request:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -484,3 +521,10 @@ export const getAcceptedUsers = async (
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+
+
+
+
+
+
