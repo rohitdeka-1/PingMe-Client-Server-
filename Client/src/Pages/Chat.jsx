@@ -148,7 +148,7 @@ const Chat = () => {
       ></div>
 
       <div className="relative z-10 flex mt-2 flex-col h-full">
-        <Heading name={name} profilePic={profilePic} />
+        <Heading name={name} userId={userId} profilePic={profilePic} />
         <div className="flex-grow ml-1 mt-[70px] mb-[70px] w-full text-md overflow-y-auto p-4">
           {chatData.messages.map((msg, index) => {
             const msgSenderId = typeof msg.senderId === "object" ? msg.senderId?._id || "" : msg.senderId
