@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import type { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import Chat from "../models/chat.model";
 
@@ -12,7 +12,10 @@ export const initSocket = (io: Server) => {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!) as jwt.JwtPayload;
+      const decoded = jwt.verify(
+        token,
+        process.env.ACCESS_TOKEN_SECRET!
+      ) as jwt.JwtPayload;
       socket.data.userId = decoded.userId; // Store userId in socket
       next();
     } catch (err) {
@@ -49,12 +52,24 @@ export const initSocket = (io: Server) => {
 
       // Save the message to the database
       try {
-        const chat = await Chat.findOneAndUpdate(
-          { participants: { $all: [userId, to] } },
-          { $push: { messages: message } },
-          { new: true, upsert: true }
-        );
-        console.log("Message saved to database:", chat);
+        // Use findOne and update separately to avoid race conditions
+        const chat = await Chat.findOne({
+          participants: { $all: [userId, to] },
+        });
+
+        if (chat) {
+          // Update existing chat
+          chat.messages.push(message);
+          await chat.save();
+        } else {
+          // Create new chat
+          await Chat.create({
+            participants: [userId, to],
+            messages: [message],
+          });
+        }
+
+        console.log("Message saved to database");
       } catch (err) {
         console.error("Error saving message to database:", err);
       }
