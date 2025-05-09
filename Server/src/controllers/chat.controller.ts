@@ -5,30 +5,40 @@ import { requestInterface } from "../middlewares/auth.middleware";
 import { Types } from "mongoose";
 
 // Fetch chat messages between two users
-export const getChatMessages = async (req: requestInterface, res: Response):Promise<any> => {
-    try {
-      const { userId } = req.params; // Target user ID
-      const currentUserId = req.user?._id.toString(); // Convert ObjectId to string
-  
-      // Find the chat between the two users
-      const chat = await Chat.findOne({
-        participants: { $all: [currentUserId, userId] },
-      }).populate("messages.senderId", "fullname profilePic");
-  
-      if (!chat) {
-        return res.status(404).json({ success: false, message: "Chat not found" });
-      }
-  
-      return res.status(200).json({
-        success: true,
-        currentUserId, // Send the current user's ID as a string
-        messages: chat.messages,
-      });
-    } catch (error) {
-      console.error("Error fetching chat messages:", error);
-      return res.status(500).json({ success: false, message: "Internal server error" });
+export const getChatMessages = async (req: requestInterface, res: Response): Promise<any> => {
+  try {
+    const { userId } = req.params; // Target user ID
+    const currentUserId = req.user?._id.toString(); // Convert ObjectId to string
+    const limit = parseInt(req.query.limit as string) || 25; // Default limit is 25
+    const offset = parseInt(req.query.offset as string) || 0; // Default offset is 0
+
+    // Find the chat between the two users
+    const chat = await Chat.findOne({
+      participants: { $all: [currentUserId, userId] },
+    }).populate("messages.senderId", "fullname profilePic");
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: "Chat not found" });
     }
-  };
+
+    // Paginate messages
+    const totalMessages = chat.messages.length;
+    const paginatedMessages = chat.messages
+      .slice(totalMessages - offset - limit, totalMessages - offset)
+      .reverse(); // Reverse to show the latest messages first
+
+    return res.status(200).json({
+      success: true,
+      currentUserId,
+      messages: paginatedMessages,
+      hasMore: offset + limit < totalMessages, // Check if there are more messages to load
+    });
+  } catch (error) {
+    console.error("Error fetching chat messages:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 // Send a message
 export const sendMessage = async (req: requestInterface, res: Response):Promise<any> => {

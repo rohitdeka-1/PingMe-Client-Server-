@@ -1,5 +1,6 @@
- 
-import { useState, useEffect } from "react"
+"use client"
+
+import { useState, useEffect, useRef } from "react"
 import { useParams, useLocation } from "react-router-dom"
 import Heading from "../Components/Chatter/Heading"
 import Background from "../../src/assets/background.webp"
@@ -9,81 +10,122 @@ import { socket } from "../utils/socket"
 import axiosInstance from "../utils/axiosInstance"
 
 const Chat = () => {
-  const { userId } = useParams() // Get the user ID from the route parameter
-  const location = useLocation() // Access the state passed via Link
-  const { name, profilePic } = location.state || {} // Destructure additional data
+  const { userId } = useParams()
+  const location = useLocation()
+  const { name, profilePic } = location.state || {}
 
-  const [chatData, setChatData] = useState(null)
+  const [chatData, setChatData] = useState({ messages: [], currentUserId: "" })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const messagesEndRef = useRef(null)
+  const processedMessageIds = useRef(new Set())
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
 
   useEffect(() => {
     const fetchChatData = async () => {
       try {
         setLoading(true)
-        // Fetch chat messages from the backend
         const response = await axiosInstance.get(`/chat/${userId}`)
-        console.log("Current User ID:", response.data.currentUserId) // Debug log
-        console.log("Messages:", response.data.messages)
+        console.log("Current User ID:", response.data.currentUserId)
+
+        // Process messages in chronological order (oldest first)
+        const messages = response.data.messages || []
+        messages.forEach((msg) => {
+          if (msg._id) {
+            processedMessageIds.current.add(msg._id)
+          }
+        })
+
         setChatData({
-          messages: response.data.messages,
+          messages: messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)),
           currentUserId: response.data.currentUserId,
         })
         setLoading(false)
       } catch (err) {
         setError("Failed to load chat. Please try again later.")
         setLoading(false)
-        console.log(err)
+        console.error("Error fetching chat:", err)
       }
     }
 
     fetchChatData()
 
-    // Listen for incoming messages
-    socket.on("receive-message", (message) => {
-      setChatData((prev) => {
-        if (!prev) return prev
-        // Check if message already exists to prevent duplicates
-        const messageExists = prev.messages.some(
-          (msg) =>
-            msg._id === message._id ||
-            (msg.content === message.content &&
-              msg.senderId._id === message.senderId &&
-              msg.timestamp === message.timestamp),
-        )
+    const setupSocket = () => {
+      if (!socket.connected) {
+        socket.connect()
+      }
 
-        if (messageExists) return prev
+      socket.off("receive-message")
 
-        return {
+      socket.on("receive-message", (message) => {
+        console.log("Received message via socket:", message)
+
+        if (message._id && processedMessageIds.current.has(message._id)) {
+          console.log("Skipping duplicate message:", message._id)
+          return
+        }
+
+        if (message._id) {
+          processedMessageIds.current.add(message._id)
+        }
+
+        // Add new message to the end of the array
+        setChatData((prev) => ({
           ...prev,
           messages: [...prev.messages, message],
-        }
+        }))
       })
-    })
+    }
+
+    setupSocket()
 
     return () => {
       socket.off("receive-message")
     }
   }, [userId])
 
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatData.messages])
+
   const handleSendMessage = (content) => {
     if (!content.trim()) return
 
+    const tempId = `temp-${Date.now()}`
     const message = {
+      _id: tempId,
       senderId: { _id: chatData.currentUserId },
       receiverId: userId,
       content,
       timestamp: new Date().toISOString(),
     }
 
-    // Emit the message to the server
-    socket.emit("send-message", { to: userId, content })
+    processedMessageIds.current.add(tempId)
 
-    // Optimistically update the chat UI
+    // Add new message to the end
     setChatData((prev) => ({
       ...prev,
       messages: [...prev.messages, message],
     }))
+
+    socket.emit("send-message", { to: userId, content }, (acknowledgement) => {
+      console.log("Message sent acknowledgement:", acknowledgement)
+
+      if (acknowledgement && acknowledgement.messageId) {
+        processedMessageIds.current.add(acknowledgement.messageId)
+
+        setChatData((prev) => ({
+          ...prev,
+          messages: prev.messages.map((msg) => 
+            msg._id === tempId ? { ...msg, _id: acknowledgement.messageId } : msg
+          ),
+        }))
+      }
+    })
   }
 
   if (loading) {
@@ -96,42 +138,37 @@ const Chat = () => {
 
   return (
     <div className="min-h-screen bg-[#161717] text-white relative overflow-hidden">
-      {/* Fixed Background */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url(${Background})`,
-          backgroundAttachment: "fixed", // Fix the background
+          backgroundAttachment: "fixed",
           opacity: "70%",
         }}
       ></div>
 
-      {/* Chat Content */}
       <div className="relative z-10 flex mt-2 flex-col h-full">
         <Heading name={name} profilePic={profilePic} />
         <div className="flex-grow ml-1 mt-[70px] mb-[70px] w-full text-md overflow-y-auto p-4">
-          {chatData?.messages.map((msg, index) => {
-            // Convert IDs to strings for proper comparison
-            const msgSenderId = msg.senderId._id || msg.senderId
-            const currentUserId = chatData.currentUserId
-
-            // Compare as strings to ensure proper alignment
-            const isCurrentUser = String(msgSenderId) === String(currentUserId)
+          {chatData.messages.map((msg, index) => {
+            const msgSenderId = typeof msg.senderId === "object" ? msg.senderId?._id || "" : msg.senderId
+            const isCurrentUser = String(msgSenderId) === String(chatData.currentUserId)
 
             return (
               <div
                 key={msg._id || index}
                 className={`mb-2 max-w-[70%] px-3 py-2 rounded-xl ${
-                  isCurrentUser
-                    ? "bg-blue-500 text-white ml-auto" // Messages from the current user
-                    : "bg-gray-700 text-white self-start" // Messages from the sender
+                  isCurrentUser ? "bg-blue-500 text-white ml-auto" : "bg-gray-700 text-white self-start"
                 }`}
               >
                 <p className="break-words">{msg.content}</p>
-                <p className="text-slate-400 text-sm text-right">{new Date(msg.timestamp).toLocaleTimeString()}</p>
+                <p className="text-slate-400 text-sm text-right">
+                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
               </div>
             )
           })}
+          <div ref={messagesEndRef} />
         </div>
 
         <TextArea onSendMessage={handleSendMessage} />

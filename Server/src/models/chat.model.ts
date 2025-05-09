@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IMessage {
+  _id?: Types.ObjectId; 
   senderId: Types.ObjectId;
   receiverId: Types.ObjectId;
   content: string;
@@ -8,7 +9,7 @@ export interface IMessage {
 }
 
 export interface IChat extends Document {
-  participants: Types.ObjectId[]; 
+  participants: Types.ObjectId[];
   messages: IMessage[];
 }
 
