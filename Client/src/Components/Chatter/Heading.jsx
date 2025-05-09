@@ -6,11 +6,13 @@ import { Link } from "react-router-dom";
 import { socket } from "../../utils/socket";
 
 const Heading = ({ name, profilePic, userId }) => {
-  const options = ["view","Delete"]
   const [isOptionVisible, setIsOptionVisible] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
   const optionsRef = useRef(null);
+  const options =[
 
+    "View"
+  ]
   const handleOptionsClick = () => setIsOptionVisible(!isOptionVisible);
 
   const handleClickOutside = (e) => {
@@ -21,32 +23,25 @@ const Heading = ({ name, profilePic, userId }) => {
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
-    console.log(userId)
+
     // Check initial status
     const checkStatus = () => {
-      console.log("Checking status for userId:", userId);
       socket.emit("get-online-status", userId, (online) => {
-        console.log(`Online status for userId ${userId}:`, online);
         setIsOnline(online);
       });
     };
 
     // Setup listeners
-    socket.on("user-online", (onlineUserId) => {
-      console.log(`User online event received for: ${onlineUserId}`);
-      if (onlineUserId === userId) {
-        setIsOnline(true);
-      }
-    });
-    
-    socket.on("user-offline", (offlineUserId) => {
-      console.log(`User offline event received for: ${offlineUserId}`);
-      if (offlineUserId === userId) {
-        setIsOnline(false);
-      }
-    });
+    const handleOnline = (onlineUserId) => {
+      if (onlineUserId === userId) setIsOnline(true);
+    };
 
-    // Removed redundant event listeners
+    const handleOffline = (offlineUserId) => {
+      if (offlineUserId === userId) setIsOnline(false);
+    };
+
+    socket.on("user-online", handleOnline);
+    socket.on("user-offline", handleOffline);
 
     // Initial check with retry logic
     checkStatus();
@@ -54,7 +49,8 @@ const Heading = ({ name, profilePic, userId }) => {
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      
+      socket.off("user-online", handleOnline);
+      socket.off("user-offline", handleOffline);
       clearInterval(statusCheckInterval);
     };
   }, [userId]);
@@ -80,6 +76,7 @@ const Heading = ({ name, profilePic, userId }) => {
               {isOnline ? "Online" : "Offline"}
             </p>
           </div>
+     
           <div className="flex gap-5">
             <FontAwesomeIcon
               className="text-xl cursor-pointer"
